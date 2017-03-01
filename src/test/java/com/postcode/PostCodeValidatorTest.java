@@ -22,6 +22,7 @@ public class PostCodeValidatorTest {
     @Test
     public final void whenJunkValueIsSupplied() {
         Assert.assertFalse(PostCodeValidator.isPostCode("$%± ()()"));
+        Assert.assertFalse(PostCodeValidator.isPostCode("\"** 0LB\""));
     }
 
     @Test
