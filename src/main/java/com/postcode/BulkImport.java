@@ -81,7 +81,8 @@ public class BulkImport {
     }
 
     public static String toCsvRow(Map<Integer, String> records) {
-        return records.entrySet().stream()
+        return records.entrySet()
+                .stream()
                 .map(map -> map.toString().replaceAll("=", ","))
                 .collect(Collectors.joining("\n"));
 

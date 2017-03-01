@@ -44,8 +44,8 @@ public class BulkImportTest {
     }
 
     @Test
-    public void recordSizeIs4() {
-        Assert.assertEquals(records.size(), 4);
+    public void recordSizeIs5() {
+        Assert.assertEquals(records.size(), 5);
     }
 
     @Test
@@ -55,6 +55,7 @@ public class BulkImportTest {
         map1.put(1064397, "MK12 5EY");
         map1.put(1995262, "W6 8EX");
         map1.put(803671, "IP20 9DL");
+        map1.put(122334,"XXX XXXX");
 
         Assert.assertEquals(records, map1);
     }
