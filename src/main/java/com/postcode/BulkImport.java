@@ -10,6 +10,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -61,6 +62,7 @@ public class BulkImport {
     public Map<Integer, String> readRecords() {
         Map<Integer, String> postcodeMap = new HashMap<Integer, String>();
         BufferedReader br = null;
+
         try {
             br = new BufferedReader(source);
             setHeader(br.lines()
@@ -85,19 +87,23 @@ public class BulkImport {
                 .stream()
                 .map(map -> map.toString().replaceAll("=", ","))
                 .collect(Collectors.joining("\n"));
-
     }
 
     public static Map<Integer, String> postcodeValidity(Map<Integer, String> records) {
         Map<Integer, String> newMap = new HashMap<Integer, String>();
+        //SortedMap<Integer, String> newMap = new TreeMap<>();
+
+        //Comparator<Map.Entry<Integer, String>> byKey = (entry1, entry2) -> entry1.getKey().compareTo(entry2.getKey());
+
         records.entrySet()
                 .stream()
+                //.sorted(byKey)
                 .forEach(
                         postMap -> {
-                            if (postMap.getValue() != null && !PostCodeValidator.isPostCode(postMap.getValue())) {
+                            if (postMap.getValue() == null || !PostCodeValidator.isPostCode(postMap.getValue())) {
                                 newMap.put(postMap.getKey(), postMap.getValue());
-                            } else {
-                                // add your map for valid postcodes
+                            } else if (postMap.getValue() != null && PostCodeValidator.isPostCode(postMap.getValue())) {
+
                             }
                         }
                 );
@@ -117,6 +123,8 @@ public class BulkImport {
     }
 
     public static void main(String[] args) {
+        final long startTime = Instant.now().toEpochMilli();
+
         BulkImport bi = null;
         try {
             File file = new File("src/main/resources/import_data.csv");
@@ -132,5 +140,9 @@ public class BulkImport {
         //System.out.println(toCsvRow(records));
         //writeCsvFile("testname.csv", bi.getHeaderString(), toCsvRow(records));
         writeCsvFile("failed_validation.csv", bi.getHeaderString(), toCsvRow(postcodeValidity(records)));
+
+        final long stopTime = Instant.now().toEpochMilli();
+
+        System.out.println("Took: " + (stopTime - startTime) + "ms to complete the process");
     }
 }
