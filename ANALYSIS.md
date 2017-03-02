@@ -39,7 +39,7 @@ Till commit code `05da55d`, marks a point at which only invalid postcodes would 
 
 # Conclusion
 The fastest code to execute the validation is by using option (2) TreeMap with filter to check for duplicates disabled
-
+reference link - http://stackoverflow.com/questions/18862997/using-arraylist-or-hashmap-for-better-speed
 
 
 # Next steps
