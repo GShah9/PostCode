@@ -62,6 +62,36 @@ public class BulkImport {
         return new Postcode(Integer.parseInt(p[0]), p[1]);
     };
 
+    @SuppressWarnings("unchecked")
+    public static Function<String, Postcode> maptoPostCodeChar = (line) -> {
+        String[] p = line.split(SEPARATOR);
+        return new Postcode(Integer.parseInt(p[0]), p[1].toCharArray());
+    };
+
+
+    public Map<Integer, char[]> readRecordsInChar() {
+        Map<Integer, char[]> postcodeMap = new HashMap<Integer, char[]>();
+        BufferedReader br = null;
+
+        try {
+            br = new BufferedReader(source);
+            setHeader(br.lines()
+                    .findFirst()
+                    .map(line -> Arrays.asList(line.split(SEPARATOR)))
+                    .get());
+            postcodeMap = br.lines()
+                    .map(maptoPostCodeChar)
+                    .collect(Collectors.toMap(Postcode::getRowId, Postcode::getPostcodeChar));
+        } finally {
+            try {
+                br.close();
+            } catch (IOException i) {
+                i.printStackTrace();
+            }
+        }
+        return postcodeMap;
+    }
+
     public Map<Integer, String> readRecords() {
         Map<Integer, String> postcodeMap = new HashMap<Integer, String>();
         BufferedReader br = null;
@@ -86,6 +116,13 @@ public class BulkImport {
     }
 
     public static String toCsvRow(Map<Integer, String> records) {
+        return records.entrySet()
+                .stream()
+                .map(map -> map.toString().replaceAll("=", ","))
+                .collect(Collectors.joining("\n"));
+    }
+
+    public static String toCSVRowChar(Map<Integer, char[]> records) {
         return records.entrySet()
                 .stream()
                 .map(map -> map.toString().replaceAll("=", ","))
@@ -134,6 +171,29 @@ public class BulkImport {
         writeCsvFile("succeeded_validation.csv", getHeaderString(), toCsvRow(validMap));
     }
 
+    public static void postcodeValidity2CSVChar(Map<Integer, char[]> records) {
+        SortedMap<Integer, char[]> invalidMap = new TreeMap<>();
+        SortedMap<Integer, char[]> validMap = new TreeMap<>();
+
+        Comparator<Map.Entry<Integer, char[]>> byKey = (entry1, entry2) -> entry1.getKey().compareTo(entry2.getKey());
+        records.entrySet()
+                .stream()
+                .sorted(byKey)
+                .forEach(
+                        postMap -> {
+                            if (postMap.getValue() == null || !PostCodeValidator.isPostCode(new String(postMap.getValue()))) {
+                                invalidMap.put(postMap.getKey(), postMap.getValue());
+                            } else if (postMap.getValue() != null && PostCodeValidator.isPostCode(new String(postMap.getValue()))) {
+                                validMap.put(postMap.getKey(), postMap.getValue());
+                            }
+                        }
+                );
+
+        writeCsvFile("failed_validation.csv", getHeaderString(), toCSVRowChar(invalidMap));
+        writeCsvFile("succeeded_validation.csv", getHeaderString(), toCSVRowChar(validMap));
+
+    }
+
     public static void writeCsvFile(String fileNamePath, String header, String content) {
         Path path = Paths.get(fileNamePath);
 
@@ -162,9 +222,12 @@ public class BulkImport {
 
         Map<Integer, String> records = bi.readRecords();
 
+        //Map<Integer, char[]> recordsChar = bi.readRecordsInChar();
+
         //writeCsvFile("failed_validation.csv", bi.getHeaderString(), toCsvRow(postcodeValidity(records)));
 
         postcodeValidity2CSV(records);
+        //postcodeValidity2CSVChar(recordsChar);
 
         final long stopTime = Instant.now().toEpochMilli();
 
