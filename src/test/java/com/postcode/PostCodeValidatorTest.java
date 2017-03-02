@@ -9,12 +9,6 @@ import org.junit.Test;
 public class PostCodeValidatorTest {
 
     @Test
-    public final void whenTextIsSupplied() {
-        PostCodeValidator.isPostCode("test");
-        Assert.assertTrue(true);
-    }
-
-    @Test
     public final void whenNullEntryIsSupplied() {
         Assert.assertFalse(PostCodeValidator.isPostCode(""));
     }
