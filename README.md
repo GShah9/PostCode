@@ -22,6 +22,7 @@ $ mvn exec:java
 ```
 **You would need to enter number '1' or '2' to perform the task**
 
+
 #### Note:
 `import_data.csv` file needs to be in resources dir at:
 ```sh
