@@ -24,7 +24,7 @@ $ mvn exec:java
 
 
 #### Note:
-`import_data.csv` file needs to be in resources dir at:
+`import_data.csv` file needs to be in resources dir at (file needs to be untared):
 ```sh
 $ src/main/resources/import_data.csv
 or

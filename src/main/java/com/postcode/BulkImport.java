@@ -88,7 +88,7 @@ public class BulkImport {
                     .get());
             postcodeMap = br.lines()
                     .map(maptoPostCode)
-                    .filter(distinctByKey(pc -> pc.getPostcode()))
+                    .filter(distinctByKey(pc -> pc.getPostcode())) //to prevent duplicate Postcode
                     .collect(Collectors.toMap(Postcode::getRowId, Postcode::getPostcode));
         } finally {
             try {
@@ -109,7 +109,7 @@ public class BulkImport {
                     .get());
             return reader.lines()
                     .map(mapper)
-                    .filter(distinctByKey(pc -> pc.get(1)))
+                    .filter(distinctByKey(pc -> pc.get(1))) //to prevent duplicate Postcode
                     .sorted((f1, f2) -> Integer.compare(Integer.parseInt(f1.get(0)), Integer.parseInt(f2.get(0))))
                     .collect(Collectors.toList());
         } catch (IOException e) {
