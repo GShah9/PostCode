@@ -135,4 +135,9 @@ public class PostCodeValidatorTest {
         Assert.assertTrue(PostCodeValidator.isPostCode("WC1A 9AA"));
     }
 
+    @Test
+    public final void whenCharArrayisSuppliedForValidation(){
+        char[] ch = {'E','C','1','A',' ','1', 'B', 'B'};
+        Assert.assertTrue(PostCodeValidator.isPostCode(new String(ch)));
+    }
 }
