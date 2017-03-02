@@ -12,9 +12,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -27,7 +30,7 @@ import java.util.stream.Collectors;
 public class BulkImport {
     private static final String SEPARATOR = ",";
     private final Reader source;
-    private List<String> header;
+    private static List<String> header;
 
     BulkImport(Reader source) {
         this.source = source;
@@ -41,7 +44,7 @@ public class BulkImport {
         return header;
     }
 
-    public String getHeaderString() {
+    public static String getHeaderString() {
         StringBuilder headers = new StringBuilder();
 
         for (String head : header) {
@@ -90,24 +93,45 @@ public class BulkImport {
     }
 
     public static Map<Integer, String> postcodeValidity(Map<Integer, String> records) {
-        Map<Integer, String> newMap = new HashMap<Integer, String>();
-        //SortedMap<Integer, String> newMap = new TreeMap<>();
+        //Map<Integer, String> newMap = new HashMap<Integer, String>();
+        SortedMap<Integer, String> invalidMap = new TreeMap<>();
 
-        //Comparator<Map.Entry<Integer, String>> byKey = (entry1, entry2) -> entry1.getKey().compareTo(entry2.getKey());
+        Comparator<Map.Entry<Integer, String>> byKey = (entry1, entry2) -> entry1.getKey().compareTo(entry2.getKey());
 
         records.entrySet()
                 .stream()
-                //.sorted(byKey)
+                .sorted(byKey)
                 .forEach(
                         postMap -> {
                             if (postMap.getValue() == null || !PostCodeValidator.isPostCode(postMap.getValue())) {
-                                newMap.put(postMap.getKey(), postMap.getValue());
-                            } else if (postMap.getValue() != null && PostCodeValidator.isPostCode(postMap.getValue())) {
-
+                                invalidMap.put(postMap.getKey(), postMap.getValue());
                             }
                         }
                 );
-        return newMap;
+        return invalidMap;
+    }
+
+    public static void postcodeValidity2CSV(Map<Integer, String> records) {
+        SortedMap<Integer, String> invalidMap = new TreeMap<>();
+        SortedMap<Integer, String> validMap = new TreeMap<>();
+
+        Comparator<Map.Entry<Integer, String>> byKey = (entry1, entry2) -> entry1.getKey().compareTo(entry2.getKey());
+
+        records.entrySet()
+                .stream()
+                .sorted(byKey)
+                .forEach(
+                        postMap -> {
+                            if (postMap.getValue() == null || !PostCodeValidator.isPostCode(postMap.getValue())) {
+                                invalidMap.put(postMap.getKey(), postMap.getValue());
+                            } else if (postMap.getValue() != null && PostCodeValidator.isPostCode(postMap.getValue())) {
+                                validMap.put(postMap.getKey(), postMap.getValue());
+                            }
+                        }
+                );
+
+        writeCsvFile("failed_validation.csv", getHeaderString(), toCsvRow(invalidMap));
+        writeCsvFile("succeeded_validation.csv", getHeaderString(), toCsvRow(validMap));
     }
 
     public static void writeCsvFile(String fileNamePath, String header, String content) {
@@ -137,9 +161,10 @@ public class BulkImport {
         }
 
         Map<Integer, String> records = bi.readRecords();
-        //System.out.println(toCsvRow(records));
-        //writeCsvFile("testname.csv", bi.getHeaderString(), toCsvRow(records));
-        writeCsvFile("failed_validation.csv", bi.getHeaderString(), toCsvRow(postcodeValidity(records)));
+
+        //writeCsvFile("failed_validation.csv", bi.getHeaderString(), toCsvRow(postcodeValidity(records)));
+
+        postcodeValidity2CSV(records);
 
         final long stopTime = Instant.now().toEpochMilli();
 
