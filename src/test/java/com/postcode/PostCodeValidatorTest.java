@@ -5,6 +5,8 @@ import org.junit.Test;
 
 /**
  * Created by Gautam on 17/02/2017.
+ *
+ * This Test class covers various edge cases for validating postcodes
  */
 public class PostCodeValidatorTest {
 
@@ -109,12 +111,17 @@ public class PostCodeValidatorTest {
         Assert.assertFalse(PostCodeValidator.isPostCode("FY10 4PL"));
     }
 
-
+   /*
+    * It is expecting double digits in district
+    */
     @Test
     public final void whenAreaWithOnlyDoubleDigitDistrictsIsSupplied() {
         Assert.assertFalse(PostCodeValidator.isPostCode("SO1 4QQ"));
     }
 
+    /*
+     * When valid postcodes are supplied
+     */
     @Test
     public final void whenValidPostCodesAreSupplied() {
         Assert.assertTrue(PostCodeValidator.isPostCode("EC1A 1BB"));

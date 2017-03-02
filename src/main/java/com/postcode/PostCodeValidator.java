@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
  * Instructions:
  * https://gist.github.com/edhiley/5da612c93e31c7e60355
  *
- * http://stackoverflow.com/questions/164979/uk-postcode-regex-comprehensive
+ * This class is for validating postcodes, regex used (postCodePattern) here is for validating UK postcodes.
  */
 
 public class PostCodeValidator {
@@ -21,6 +21,10 @@ public class PostCodeValidator {
     /*
      *  This code is to cater Part 1 of Postcode validation
      *  link - https://gist.github.com/edhiley/5da612c93e31c7e60355#part-1---postcode-validation
+     *
+     *  This method helps in validating UK postcode. It expects single postcode at a time.
+     *  @param text is the CharSequence for checking against the regex pattern
+     *  @return boolean which suggests that the supplied CharSequence matches the pattern or not
      */
     public static boolean isPostCode(CharSequence text) {
         if (text == null)
