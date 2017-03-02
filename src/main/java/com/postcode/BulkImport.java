@@ -14,7 +14,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -28,7 +27,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Gautam on 27/02/2017.
  *
- * This is the task 2 of Postcode import
+ * This includes solution for task 2 of Postcode import
  * link - https://gist.github.com/edhiley/5da612c93e31c7e60355#part-2---bulk-import
  *
  * And Task 3 for Performance engineering
@@ -77,7 +76,6 @@ public class BulkImport {
     }
 
     public Map<Integer, String> readRecords() {
-        Map<Integer, String> postcodeMap = new HashMap<Integer, String>();
         BufferedReader br = null;
 
         try {
@@ -86,9 +84,9 @@ public class BulkImport {
                     .findFirst()
                     .map(mapper)
                     .get());
-            postcodeMap = br.lines()
+            return br.lines()
                     .map(maptoPostCode)
-                    .filter(distinctByKey(pc -> pc.getPostcode())) //to prevent duplicate Postcode
+                    //.filter(distinctByKey(pc -> pc.getPostcode())) //to prevent duplicate Postcode
                     .collect(Collectors.toMap(Postcode::getRowId, Postcode::getPostcode));
         } finally {
             try {
@@ -97,11 +95,9 @@ public class BulkImport {
                 i.printStackTrace();
             }
         }
-        return postcodeMap;
     }
 
     public List<List<String>> readRecordsList() {
-        List<String> csvrecords = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(source)) {
             setHeader(reader.lines()
                     .findFirst()
@@ -109,7 +105,7 @@ public class BulkImport {
                     .get());
             return reader.lines()
                     .map(mapper)
-                    .filter(distinctByKey(pc -> pc.get(1))) //to prevent duplicate Postcode
+                    //.filter(distinctByKey(pc -> pc.get(1))) //to prevent duplicate Postcode
                     .sorted((f1, f2) -> Integer.compare(Integer.parseInt(f1.get(0)), Integer.parseInt(f2.get(0))))
                     .collect(Collectors.toList());
         } catch (IOException e) {
@@ -148,8 +144,16 @@ public class BulkImport {
         System.out.println(invalidList.size() + " number of invalid postcodes found");
         System.out.println(validList.size() + " number of valid postcodes found");
 
+        final long startWriteTime = Instant.now().toEpochMilli();
+
         writeCsvFile("failed_validation.csv", getHeaderString(), toCsvRow(invalidList));
         writeCsvFile("succeeded_validation.csv", getHeaderString(), toCsvRow(validList));
+
+        final long stopWriteTime = Instant.now().toEpochMilli();
+
+        System.out.println();
+        System.out.println("Writing List to csv file took " + (stopWriteTime - startWriteTime) + " millisecond(s)");
+        System.out.println();
     }
 
     public static void postcodeValidity2CSV(Map<Integer, String> records) {
@@ -174,8 +178,16 @@ public class BulkImport {
         System.out.println(invalidMap.keySet().size() + " number of invalid postcodes found");
         System.out.println(validMap.keySet().size() + " number of valid postcodes found");
 
+        final long startWriteTime = Instant.now().toEpochMilli();
+
         writeCsvFile("failed_validation.csv", getHeaderString(), toCsvRow(invalidMap));
         writeCsvFile("succeeded_validation.csv", getHeaderString(), toCsvRow(validMap));
+
+        final long stopWriteTime = Instant.now().toEpochMilli();
+
+        System.out.println();
+        System.out.println("Writing Map to csv file took " + (stopWriteTime - startWriteTime) + " millisecond(s)");
+        System.out.println();
     }
 
     public static void writeCsvFile(String fileNamePath, String header, String content) {
@@ -196,13 +208,6 @@ public class BulkImport {
         System.out.println("1) To process csv validation using Lists");
         System.out.println("2) To process csv validation using Maps");
         System.out.println();
-        Scanner scan = new Scanner(System.in);
-        while (!scan.hasNextInt()) scan.next();
-        int i = scan.nextInt();
-
-        System.out.println("Please wait...");
-
-        final long startTime = Instant.now().toEpochMilli();
 
         BulkImport bi = null;
         try {
@@ -215,24 +220,64 @@ public class BulkImport {
             throw new UncheckedIOException(e);
         }
 
+        final long startReadRecordsTime;
+        final long stopReadRecordsTime;
+        final long startValidityTime;
+        final long stopValidityTime;
+
+        Scanner scan = new Scanner(System.in);
+        while (!scan.hasNextInt()) scan.next();
+        int i = scan.nextInt();
+
+        System.out.println("Please wait...");
+
+        final long startTime = Instant.now().toEpochMilli();
+
         switch (i) {
             case 1:
+                startReadRecordsTime = Instant.now().toEpochMilli();
+
                 List<List<String>> li = bi.readRecordsList();
+
+                stopReadRecordsTime = Instant.now().toEpochMilli();
+                startValidityTime = Instant.now().toEpochMilli();
+
                 postcodeValidity2CSV(li);
+
+                stopValidityTime = Instant.now().toEpochMilli();
                 break;
             case 2:
+                startReadRecordsTime = Instant.now().toEpochMilli();
+
                 Map<Integer, String> records = bi.readRecords();
+
+                stopReadRecordsTime = Instant.now().toEpochMilli();
+                startValidityTime = Instant.now().toEpochMilli();
+
                 postcodeValidity2CSV(records);
+
+                stopValidityTime = Instant.now().toEpochMilli();
                 break;
             default:
                 System.out.println("Had to choose 1 or 2! Using 2 as default..");
+                startReadRecordsTime = Instant.now().toEpochMilli();
+
                 records = bi.readRecords();
+
+                stopReadRecordsTime = Instant.now().toEpochMilli();
+                startValidityTime = Instant.now().toEpochMilli();
+
                 postcodeValidity2CSV(records);
+
+                stopValidityTime = Instant.now().toEpochMilli();
                 break;
         }
 
         final long stopTime = Instant.now().toEpochMilli();
 
+        System.out.println("Reading records from import_data.csv took " + (stopReadRecordsTime - startReadRecordsTime) + " millisecond(s)");
+        System.out.println();
+        System.out.println("Validating records took " + (stopValidityTime - startValidityTime) + " millisecond(s)");
         System.out.println();
         System.out.println("It took total time of " + (stopTime - startTime) + " millisecond(s) to complete the process");
         System.out.println();

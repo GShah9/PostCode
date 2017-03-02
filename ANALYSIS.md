@@ -17,8 +17,8 @@ Till commit code `05da55d`, marks a point at which only invalid postcodes would 
 
 ### Few points considered while attempting to optimise the code
  - Deal with post-codes without space (None were found on manual check)
- - Use of distinct filter on postcode column to ignore duplicates. This can be disabled by commenting lines `91` and `112` in `BulkImport.java` file
- - Sorting items while reading from buffer (using ArrayList implementation) / during postcode validation (using TreeMap implementation)
+ - Use of distinct filter on postcode column to ignore duplicates. This has been disabled on lines `91` and `112` in `BulkImport.java` file
+ - Sorting row_id column -> while reading from buffer (using ArrayList implementation) / during postcode validation (using TreeMap implementation)
 
 
 ### Observations
@@ -28,6 +28,7 @@ Till commit code `05da55d`, marks a point at which only invalid postcodes would 
  - ArrayList method implementation 'wall' time is quicker compared to TreeMap (SortedMap) implementation for `small sets of data`
  - Noticeable performance degradation was observed while processing 2 million records from csv file provided when ArrayList was used
  - There was not much difference while using TreeMap (SortedMap) equivalent variant even while applying filter to ignore duplicate postcodes
+ - Use of filter to look for duplicate postcodes v/s current file data, it is not worth using that filter
 
 # Conclusion
 The fastest code to execute the validation is by using option (2) TreeMap.
