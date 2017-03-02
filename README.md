@@ -1,6 +1,6 @@
 # Postcode Validator
 
-Total number of days to implement the project - 3 days (with brakes in between and research work involved)
+Total number of days to implement the project: 3 days (with brakes in between and research work involved)
 
 This program is built on `Java 8` and is dependant on Stream API.
 It also requires `maven 3.3.9+`
@@ -35,15 +35,16 @@ $ mvn exec:java
 **You would need to enter number '1' or '2' to perform the task**
 
 
+
 #### Note:
-`import_data.csv` file needs to be in resources dir at (file needs to be untared):
+- `import_data.csv` file needs to be in resources dir at (file needs to be untared):
 ```sh
 $ src/main/resources/import_data.csv
 or
 $ src/test/resources/import_data.csv
 ```
 
-sample data for test `import_data.csv` file:
+- sample data for test `import_data.csv` file:
 ```sh
 row_id,postcode
 905529,LE14 3QB
