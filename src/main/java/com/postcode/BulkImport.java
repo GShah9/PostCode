@@ -233,6 +233,8 @@ public class BulkImport {
 
         final long stopTime = Instant.now().toEpochMilli();
 
+        System.out.println();
         System.out.println("It took total time of " + (stopTime - startTime) + " millisecond(s) to complete the process");
+        System.out.println();
     }
 }
