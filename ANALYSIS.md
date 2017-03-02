@@ -28,3 +28,6 @@ Till commit code `05da55d`, marks a point at which only invalid postcodes would 
  - ArrayList method implementation 'wall' time is quicker compared to TreeMap (SortedMap) implementation for `small sets of data`
  - Noticeable performance degradation was observed while processing 2 million records from csv file provided when ArrayList was used
  - There was not much difference while using TreeMap (SortedMap) equivalent variant even while applying filter to ignore duplicate postcodes
+
+# Conclusion:
+The fastest code to execute the validation is by using option (2) TreeMap.
